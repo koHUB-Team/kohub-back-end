@@ -1,0 +1,7 @@
+/src/main/resources/application.properties
+/src/main/webapp/WEB-INF/static
+/src/test
+target
+.classpath
+.project
+.settings
