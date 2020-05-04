@@ -18,4 +18,16 @@ public class UserResponse {
 
   @NonNull
   private int totalCount;
+
+  @NonNull
+  private int totalUserCount;
+
+  @NonNull
+  private int normalCount;
+
+  @NonNull
+  private int warnningCount;
+
+  @NonNull
+  private int forbiddenCount;
 }

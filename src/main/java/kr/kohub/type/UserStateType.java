@@ -1,7 +1,7 @@
 package kr.kohub.type;
 
 public enum UserStateType {
-  NORMAL("정상"), WARRNING("경고"), VAN("정지");
+  NORMAL("정상"), WARRNING("경고"), FORBIDDEN("정지");
 
   private final String stateName;
 

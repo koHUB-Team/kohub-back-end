@@ -24,10 +24,12 @@ public class User {
   private boolean auth = false;
 
   @NonNull
-  private String state;
+  @Builder.Default
+  private String state = "정상";
 
   @NonNull
-  private String role;
+  @Builder.Default
+  private String role = "user";
 
   private String createDate;
   private String modifyDate;
