@@ -16,17 +16,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import kr.kohub.dto.AdminMenu;
 import kr.kohub.dto.Menu;
+import kr.kohub.dto.NoticeBoard;
 import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
 import kr.kohub.dto.param.UserParam;
 import kr.kohub.dto.response.AdminMenuResponse;
 import kr.kohub.dto.response.MenuResponse;
+import kr.kohub.dto.response.NoticeBoardResponse;
 import kr.kohub.dto.response.UserResponse;
 import kr.kohub.exception.AdminMenuNotFoundException;
 import kr.kohub.exception.BadRequestException;
 import kr.kohub.exception.MenuNotFoundException;
+import kr.kohub.exception.NoticeBoardNotFoundException;
 import kr.kohub.exception.UserNotFoundException;
 import kr.kohub.service.MenuService;
+import kr.kohub.service.NoticeService;
 import kr.kohub.service.UserService;
 import kr.kohub.type.OrderOptionType;
 import kr.kohub.type.UserAuthType;
@@ -44,6 +48,9 @@ public class kohubApiController {
 
   @Autowired
   UserService userService;
+
+  @Autowired
+  NoticeService noticeService;
 
   @CrossOrigin
   @GetMapping(path = "/menus")
@@ -192,5 +199,21 @@ public class kohubApiController {
         .totalUserCount(totalUserCount).totalCount(totalCount).build();
 
     return CollectionsUtil.convertObjectToMap(userResponse);
+  }
+
+  @CrossOrigin
+  @GetMapping(path = "/notices")
+  public Map<String, Object> getNotices(
+      @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
+    List<NoticeBoard> noticeBoards = noticeService.getNotices(start);
+
+    if (noticeBoards == null) {
+      throw new NoticeBoardNotFoundException();
+    }
+
+    NoticeBoardResponse noticeBoardResponse =
+        NoticeBoardResponse.builder().items(noticeBoards).build();
+
+    return CollectionsUtil.convertObjectToMap(noticeBoardResponse);
   }
 }
