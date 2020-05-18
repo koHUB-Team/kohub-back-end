@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import kr.kohub.dao.NoticeBoardDao;
 import kr.kohub.dto.NoticeBoard;
+import kr.kohub.dto.param.NoticeBoardParam;
 import kr.kohub.service.NoticeService;
 
 @Service
@@ -29,5 +30,11 @@ public class NoticeServiceImpl implements NoticeService {
   @Override
   public NoticeBoard getNotice(int noticeId) {
     return noticeBoardDao.selectById(noticeId);
+  }
+
+  @Transactional(readOnly = false)
+  @Override
+  public int addNotice(NoticeBoardParam noticeBoardParam) {
+    return noticeBoardDao.insert(noticeBoardParam);
   }
 }

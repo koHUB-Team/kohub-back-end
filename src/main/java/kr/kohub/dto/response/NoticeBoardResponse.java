@@ -16,6 +16,7 @@ public class NoticeBoardResponse {
 
   @NonNull
   private List<NoticeBoard> items;
+
   @NonNull
   private int totalNoticeCount;
 
