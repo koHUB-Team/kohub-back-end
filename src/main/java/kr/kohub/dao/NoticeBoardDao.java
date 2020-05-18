@@ -1,5 +1,6 @@
 package kr.kohub.dao;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,5 +41,31 @@ public class NoticeBoardDao {
     }
 
     return noticeBoards;
+  }
+
+  public int selectTotalNoticeCount() {
+    int totalCount = 0;
+    try {
+      totalCount = jdbc.queryForObject(NoticeBoardDaoSql.SELECT_TOTAL_NOTICE_COUNT,
+          Collections.emptyMap(), Integer.class);
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      totalCount = 0;
+    }
+    return totalCount;
+  }
+
+  public NoticeBoard selectById(int noticeId) {
+    NoticeBoard noticeBoard;
+
+    try {
+      Map<String, Object> params = new HashMap<>();
+      params.put("noticeId", noticeId);
+      noticeBoard = jdbc.queryForObject(NoticeBoardDaoSql.SELECT_BY_ID, params, rowMapper);
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      noticeBoard = null;
+    }
+    return noticeBoard;
   }
 }

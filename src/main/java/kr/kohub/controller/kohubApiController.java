@@ -23,6 +23,7 @@ import kr.kohub.dto.param.UserParam;
 import kr.kohub.dto.response.AdminMenuResponse;
 import kr.kohub.dto.response.MenuResponse;
 import kr.kohub.dto.response.NoticeBoardResponse;
+import kr.kohub.dto.response.NoticeResponse;
 import kr.kohub.dto.response.UserResponse;
 import kr.kohub.exception.AdminMenuNotFoundException;
 import kr.kohub.exception.BadRequestException;
@@ -205,15 +206,27 @@ public class kohubApiController {
   @GetMapping(path = "/notices")
   public Map<String, Object> getNotices(
       @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
-    List<NoticeBoard> noticeBoards = noticeService.getNotices(start);
 
+    List<NoticeBoard> noticeBoards = noticeService.getNotices(start);
     if (noticeBoards == null) {
       throw new NoticeBoardNotFoundException();
     }
-
-    NoticeBoardResponse noticeBoardResponse =
-        NoticeBoardResponse.builder().items(noticeBoards).build();
+    int totalNoticeCount = noticeService.getTotalNoticeCount();
+    NoticeBoard noticeBoard = noticeService.getNotice(0);
+    NoticeBoardResponse noticeBoardResponse = NoticeBoardResponse.builder().items(noticeBoards)
+        .totalNoticeCount(totalNoticeCount).noticeBoard(noticeBoard).build();
 
     return CollectionsUtil.convertObjectToMap(noticeBoardResponse);
+  }
+
+  @CrossOrigin
+  @GetMapping(path = "/notice")
+  public Map<String, Object> getNotice(
+      @RequestParam(name = "noticeId", required = true) int noticeId) {
+    NoticeBoard noticeBoard = noticeService.getNotice(noticeId);
+
+    NoticeResponse noticeResponse = NoticeResponse.builder().noticeBoard(noticeBoard).build();
+
+    return CollectionsUtil.convertObjectToMap(noticeResponse);
   }
 }

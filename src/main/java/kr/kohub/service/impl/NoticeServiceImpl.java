@@ -19,4 +19,15 @@ public class NoticeServiceImpl implements NoticeService {
     return noticeBoardDao.selectPaging(start);
   }
 
+  @Transactional(readOnly = true)
+  @Override
+  public int getTotalNoticeCount() {
+    return noticeBoardDao.selectTotalNoticeCount();
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public NoticeBoard getNotice(int noticeId) {
+    return noticeBoardDao.selectById(noticeId);
+  }
 }
