@@ -19,6 +19,4 @@ public class NoticeBoardResponse {
 
   @NonNull
   private int totalNoticeCount;
-
-  private NoticeBoard noticeBoard;
 }

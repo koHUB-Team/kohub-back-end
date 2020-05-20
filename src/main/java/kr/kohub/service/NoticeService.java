@@ -12,4 +12,8 @@ public interface NoticeService {
   public NoticeBoard getNotice(int noticeId);
 
   public int addNotice(NoticeBoardParam noticeBoardParam);
+
+  public int deleteNotice(int noticeId);
+
+  public int updateNotice(int noticeId, String title, String content);
 }

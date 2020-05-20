@@ -86,4 +86,20 @@ public class NoticeBoardDao {
     int insertCount = this.insertAction.execute(params);
     return insertCount;
   }
+
+  public int delete(int noticeId) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("noticeId", noticeId);
+    return jdbc.update(NoticeBoardDaoSql.DELETE_BY_ID, params);
+  }
+
+  public int update(int noticeId, String title, String content, String modifyDate) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("noticeId", noticeId);
+    params.put("title", title);
+    params.put("content", content);
+    params.put("modifyDate", modifyDate);
+
+    return jdbc.update(NoticeBoardDaoSql.UPDATE, params);
+  }
 }

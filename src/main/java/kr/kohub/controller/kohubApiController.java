@@ -213,9 +213,8 @@ public class kohubApiController {
       throw new NoticeBoardNotFoundException();
     }
     int totalNoticeCount = noticeService.getTotalNoticeCount();
-    NoticeBoard noticeBoard = noticeService.getNotice(0);
     NoticeBoardResponse noticeBoardResponse = NoticeBoardResponse.builder().items(noticeBoards)
-        .totalNoticeCount(totalNoticeCount).noticeBoard(noticeBoard).build();
+        .totalNoticeCount(totalNoticeCount).build();
 
     return CollectionsUtil.convertObjectToMap(noticeBoardResponse);
   }
@@ -239,7 +238,40 @@ public class kohubApiController {
 
     int insertCnt = noticeService.addNotice(noticeBoardParam);
     if (insertCnt == 0) {
-      // 에러처리
+      throw new BadRequestException();
+    }
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @GetMapping(path = "/notice/delete")
+  public Map<String, Object> deleteNotice(
+      @RequestParam(name = "noticeId", required = true) int noticeId) {
+
+    int deleteCnt = noticeService.deleteNotice(noticeId);
+    if (deleteCnt == 0) {
+      throw new NoticeBoardNotFoundException();
+    }
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @PutMapping(path = "/notice/update/{noticeId}")
+  public Map<String, Object> updateNotice(@PathVariable(name = "noticeId") int noticeId,
+      @RequestBody(required = true) @Valid NoticeBoardParam noticeBoardParam) {
+
+    int updateCnt = 0;
+    try {
+      String title = noticeBoardParam.getTitle();
+      String content = noticeBoardParam.getContent();
+      updateCnt = noticeService.updateNotice(noticeId, title, content);
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException();
+    }
+
+    if (updateCnt == 0) {
+      throw new NoticeBoardNotFoundException();
     }
 
     return Collections.emptyMap();

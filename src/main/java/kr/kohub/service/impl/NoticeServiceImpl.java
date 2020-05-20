@@ -8,6 +8,7 @@ import kr.kohub.dao.NoticeBoardDao;
 import kr.kohub.dto.NoticeBoard;
 import kr.kohub.dto.param.NoticeBoardParam;
 import kr.kohub.service.NoticeService;
+import kr.kohub.util.DateUtil;
 
 @Service
 public class NoticeServiceImpl implements NoticeService {
@@ -36,5 +37,18 @@ public class NoticeServiceImpl implements NoticeService {
   @Override
   public int addNotice(NoticeBoardParam noticeBoardParam) {
     return noticeBoardDao.insert(noticeBoardParam);
+  }
+
+  @Transactional(readOnly = false)
+  @Override
+  public int deleteNotice(int noticeId) {
+    return noticeBoardDao.delete(noticeId);
+  }
+
+  @Transactional(readOnly = false)
+  @Override
+  public int updateNotice(int noticeId, String title, String content) {
+    String modifyDate = DateUtil.getNowDate();
+    return noticeBoardDao.update(noticeId, title, content, modifyDate);
   }
 }

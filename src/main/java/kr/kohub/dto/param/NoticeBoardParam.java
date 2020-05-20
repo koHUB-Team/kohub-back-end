@@ -21,7 +21,7 @@ public class NoticeBoardParam {
   @NotEmpty(message = "공지사항 내용은 반드시 입력해야합니다.")
   private String content;
 
-  @NonNull
+
   @Positive
   private int userId;
 }
