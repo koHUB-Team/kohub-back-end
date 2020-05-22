@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,6 +22,7 @@ import kr.kohub.dto.NoticeBoard;
 import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
 import kr.kohub.dto.param.NoticeBoardParam;
+import kr.kohub.dto.param.PromotionParam;
 import kr.kohub.dto.param.UserParam;
 import kr.kohub.dto.response.AdminMenuResponse;
 import kr.kohub.dto.response.MenuResponse;
@@ -33,7 +35,9 @@ import kr.kohub.exception.NoticeBoardNotFoundException;
 import kr.kohub.exception.UserNotFoundException;
 import kr.kohub.service.MenuService;
 import kr.kohub.service.NoticeService;
+import kr.kohub.service.PromotionService;
 import kr.kohub.service.UserService;
+import kr.kohub.type.ImageFileExtensionType;
 import kr.kohub.type.OrderOptionType;
 import kr.kohub.type.UserAuthType;
 import kr.kohub.type.UserFilterType;
@@ -41,7 +45,9 @@ import kr.kohub.type.UserOrderType;
 import kr.kohub.type.UserRoleType;
 import kr.kohub.type.UserStateType;
 import kr.kohub.util.CollectionsUtil;
+import kr.kohub.util.FileUtil;
 
+// 이름변경 대문자로
 @RestController
 @RequestMapping(path = "/api")
 public class kohubApiController {
@@ -53,6 +59,9 @@ public class kohubApiController {
 
   @Autowired
   NoticeService noticeService;
+
+  @Autowired
+  PromotionService promotionService;
 
   @CrossOrigin
   @GetMapping(path = "/menus")
@@ -204,6 +213,36 @@ public class kohubApiController {
   }
 
   @CrossOrigin
+  @GetMapping(path = "/admin/promotions")
+  public Map<String, Object> getPromotions() {
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @PostMapping(path = "/admin/promotion")
+  public Map<String, Object> postPromotion(@ModelAttribute @Valid PromotionParam promotionParam) {
+
+    try {
+      String fileName = promotionParam.getPromotionImage().getOriginalFilename();
+      String fileExtension = FileUtil.getFileExtension(fileName);
+      ImageFileExtensionType.valueOf(fileExtension.toUpperCase());
+    } catch (Exception e) {
+      throw new BadRequestException();
+    }
+
+    String email = promotionParam.getEmail();
+    User user = userService.getUserByEmail(email);
+    if (user == null) {
+      throw new UserNotFoundException();
+    }
+
+    int userId = user.getId();
+    promotionService.addPromotion(promotionParam, userId);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
   @GetMapping(path = "/notices")
   public Map<String, Object> getNotices(
       @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
@@ -237,10 +276,9 @@ public class kohubApiController {
   public Map<String, Object> postNotice(
       @RequestBody(required = true) @Valid NoticeBoardParam noticeBoardParam) {
 
-    int insertCnt = noticeService.addNotice(noticeBoardParam);
-    if (insertCnt == 0) {
-      // 에러처리
-    }
+    // 서버에서도 date 이중으로 검사 필요.
+    noticeService.addNotice(noticeBoardParam);
+
 
     return Collections.emptyMap();
   }

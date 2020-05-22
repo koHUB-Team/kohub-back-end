@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Import;
 
 
 @Configuration
-@ComponentScan(basePackages = {"kr.kohub.dao","kr.kohub.service"})
+@ComponentScan(basePackages = {"kr.kohub.dao", "kr.kohub.service", "kr.kohub.util"})
 @Import({DBconfig.class})
 public class ApplicationConfig {
 
