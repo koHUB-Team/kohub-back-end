@@ -13,7 +13,7 @@ public interface NoticeService {
 
   public int addNotice(NoticeBoardParam noticeBoardParam);
 
-  public int deleteNotice(int noticeId);
+  public int removeNotice(int noticeId);
 
-  public int updateNotice(int noticeId, String title, String content);
+  public int changeNotice(int noticeId, String title, String content);
 }

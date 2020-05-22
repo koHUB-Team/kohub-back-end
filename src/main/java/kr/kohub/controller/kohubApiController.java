@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -235,44 +236,41 @@ public class kohubApiController {
   @PostMapping(path = "/notice")
   public Map<String, Object> postNotice(
       @RequestBody(required = true) @Valid NoticeBoardParam noticeBoardParam) {
+    noticeService.addNotice(noticeBoardParam);
 
-    int insertCnt = noticeService.addNotice(noticeBoardParam);
-    if (insertCnt == 0) {
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @DeleteMapping(path = "/notices/{noticeId}")
+  public Map<String, Object> deleteNotice(
+      @PathVariable(name = "noticeId", required = true) int noticeId) {
+
+    // 삭제 API 보안문제 이슈
+
+    NoticeBoard noticeBoard = noticeService.getNotice(noticeId);
+    if (noticeBoard == null) {
       throw new BadRequestException();
     }
 
+    noticeService.removeNotice(noticeId);
+
     return Collections.emptyMap();
   }
 
   @CrossOrigin
-  @GetMapping(path = "/notice/delete")
-  public Map<String, Object> deleteNotice(
-      @RequestParam(name = "noticeId", required = true) int noticeId) {
-
-    int deleteCnt = noticeService.deleteNotice(noticeId);
-    if (deleteCnt == 0) {
-      throw new NoticeBoardNotFoundException();
-    }
-    return Collections.emptyMap();
-  }
-
-  @CrossOrigin
-  @PutMapping(path = "/notice/update/{noticeId}")
-  public Map<String, Object> updateNotice(@PathVariable(name = "noticeId") int noticeId,
+  @PutMapping(path = "/notices/{noticeId}")
+  public Map<String, Object> putNotice(@PathVariable(name = "noticeId") int noticeId,
       @RequestBody(required = true) @Valid NoticeBoardParam noticeBoardParam) {
 
-    int updateCnt = 0;
-    try {
-      String title = noticeBoardParam.getTitle();
-      String content = noticeBoardParam.getContent();
-      updateCnt = noticeService.updateNotice(noticeId, title, content);
-    } catch (IllegalArgumentException e) {
+    NoticeBoard noticeBoard = noticeService.getNotice(noticeId);
+    if (noticeBoard == null) {
       throw new BadRequestException();
     }
 
-    if (updateCnt == 0) {
-      throw new NoticeBoardNotFoundException();
-    }
+    String title = noticeBoardParam.getTitle();
+    String content = noticeBoardParam.getContent();
+    noticeService.changeNotice(noticeId, title, content);
 
     return Collections.emptyMap();
   }

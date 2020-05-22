@@ -41,13 +41,13 @@ public class NoticeServiceImpl implements NoticeService {
 
   @Transactional(readOnly = false)
   @Override
-  public int deleteNotice(int noticeId) {
+  public int removeNotice(int noticeId) {
     return noticeBoardDao.delete(noticeId);
   }
 
   @Transactional(readOnly = false)
   @Override
-  public int updateNotice(int noticeId, String title, String content) {
+  public int changeNotice(int noticeId, String title, String content) {
     String modifyDate = DateUtil.getNowDate();
     return noticeBoardDao.update(noticeId, title, content, modifyDate);
   }

@@ -83,13 +83,13 @@ public class NoticeBoardDao {
     params.put("content", noticeBoardParam.getContent());
     params.put("user_id", noticeBoardParam.getUserId());
 
-    int insertCount = this.insertAction.execute(params);
-    return insertCount;
+    return insertAction.execute(params);
   }
 
   public int delete(int noticeId) {
     Map<String, Object> params = new HashMap<>();
     params.put("noticeId", noticeId);
+
     return jdbc.update(NoticeBoardDaoSql.DELETE_BY_ID, params);
   }
 
