@@ -1,11 +1,15 @@
 package kr.kohub.util;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -14,14 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import kr.kohub.type.FilePathType;
 import lombok.extern.slf4j.Slf4j;
 
-// 파일 디렉토리 구조 결정, filePathType결정
-// 파일 이미지 썸네일 저장
-// 파일 이미지 타입 필요
-// 업로드 saveFileName 고려
-// 다운로드 파일명 UUID 고려 필요.
-// 이미지 뿐만 아니라 다른 파일도 존재
-
-// 파일업로드,다운로드시 트랜잭션 처리할 수 있도록 예외처리를 안 함
 @Slf4j
 @Component
 @PropertySource(value = "classpath:application.properties")
@@ -32,9 +28,45 @@ public class FileUtil {
   private static final String FILE_EXTENSION_PATTERN = "(.[a-zA-Z]+)$";
   // private static final String FILE_NAME_PATTERN = "([a-zA-Z0-9ㄱ-ㅎㅏ-ㅣ가-힣.]+)(.[a-zA-Z]+)";
 
-  public static String uploadThumbImg() {
-    // 썸네일 업로드 구현 필요
-    return "";
+  public String uploadThumbImg(String loadFileName, int zoom, FilePathType filePathType) {
+    // 파일 경로
+    String rootPath = getRootPath();
+    String uploadPath = getUploadFilePath(filePathType);
+
+    // 디렉토리 체크
+    File dir = new File(rootPath + uploadPath);
+    checkDirectory(dir);
+
+    String loadFilePath = rootPath + uploadPath + loadFileName;
+    String saveFileName = getUUIDFileName(".jpg");
+    String saveFilePath = rootPath + uploadPath + saveFileName;
+    System.out.println("loadFilePath : " + loadFilePath);
+    System.out.println("saveFilePath : " + saveFilePath);
+
+    File thumbFile = new File(saveFilePath); // 썸네일 이미지
+    // RenderedOp renderedOp = JAI.create("fileload", loadFilePath); // 원본 이미지
+    // BufferedImage bufferedImage = renderedOp.getAsBufferedImage();
+
+    try {
+      BufferedImage bufferedImage = ImageIO.read(new File(loadFilePath));
+
+      if (zoom <= 0) {// 축소비율 설정
+        zoom = 1;
+      }
+      int width = bufferedImage.getWidth() / zoom;
+      int height = bufferedImage.getHeight() / zoom;
+
+      BufferedImage thumbImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+      Graphics2D graphics2d = thumbImg.createGraphics();
+      graphics2d.drawImage(bufferedImage, 0, 0, width, height, null);
+      ImageIO.write(thumbImg, "jpg", thumbFile);
+
+    } catch (IOException e) {
+      log.error(e.getMessage());
+      throw new RuntimeException();
+    }
+
+    return saveFileName;
   }
 
   public String upload(MultipartFile file, FilePathType filePathType) {
@@ -63,8 +95,7 @@ public class FileUtil {
       throw new RuntimeException(e);
     }
 
-    // saveFileName 결정
-    return uploadPath + fileName;
+    return fileName;
   }
 
   private static void checkDirectory(File dir) {
