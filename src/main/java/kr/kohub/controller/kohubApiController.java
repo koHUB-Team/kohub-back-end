@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import kr.kohub.dto.AdminMenu;
+import kr.kohub.dto.Faq;
 import kr.kohub.dto.Menu;
 import kr.kohub.dto.NoticeBoard;
 import kr.kohub.dto.Submenu;
@@ -24,14 +25,17 @@ import kr.kohub.dto.User;
 import kr.kohub.dto.param.NoticeBoardParam;
 import kr.kohub.dto.param.UserParam;
 import kr.kohub.dto.response.AdminMenuResponse;
+import kr.kohub.dto.response.FaqResponse;
 import kr.kohub.dto.response.MenuResponse;
 import kr.kohub.dto.response.NoticeBoardResponse;
 import kr.kohub.dto.response.UserResponse;
 import kr.kohub.exception.AdminMenuNotFoundException;
 import kr.kohub.exception.BadRequestException;
+import kr.kohub.exception.FaqNotFoundException;
 import kr.kohub.exception.MenuNotFoundException;
 import kr.kohub.exception.NoticeBoardNotFoundException;
 import kr.kohub.exception.UserNotFoundException;
+import kr.kohub.service.FaqService;
 import kr.kohub.service.MenuService;
 import kr.kohub.service.NoticeService;
 import kr.kohub.service.UserService;
@@ -54,6 +58,9 @@ public class kohubApiController {
 
   @Autowired
   NoticeService noticeService;
+
+  @Autowired
+  FaqService faqService;
 
   @CrossOrigin
   @GetMapping(path = "/menus")
@@ -262,7 +269,6 @@ public class kohubApiController {
   @PutMapping(path = "/notices/{noticeId}")
   public Map<String, Object> putNotice(@PathVariable(name = "noticeId") int noticeId,
       @RequestBody(required = true) @Valid NoticeBoardParam noticeBoardParam) {
-
     NoticeBoard noticeBoard = noticeService.getNotice(noticeId);
     if (noticeBoard == null) {
       throw new BadRequestException();
@@ -270,8 +276,24 @@ public class kohubApiController {
 
     String title = noticeBoardParam.getTitle();
     String content = noticeBoardParam.getContent();
+
     noticeService.changeNotice(noticeId, title, content);
 
     return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @GetMapping(path = "/faqs")
+  public Map<String, Object> getFaqs(
+      @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
+
+    List<Faq> faqs = faqService.getFaqs(start);
+    if (faqs == null) {
+      throw new FaqNotFoundException();
+    }
+    int totalFaqCount = faqService.getTotalFaqCount();
+    FaqResponse faqResponse = FaqResponse.builder().faqs(faqs).totalFaqCount(totalFaqCount).build();
+
+    return CollectionsUtil.convertObjectToMap(faqResponse);
   }
 }
