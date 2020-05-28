@@ -27,4 +27,7 @@ public class PromotionFileInfo {
 
   @NonNull
   private int promotionId;
+
+  @NonNull
+  private int imageTypeId;
 }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import kr.kohub.dto.AdminMenu;
 import kr.kohub.dto.Menu;
 import kr.kohub.dto.NoticeBoard;
+import kr.kohub.dto.Promotion;
 import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
 import kr.kohub.dto.param.NoticeBoardParam;
@@ -27,6 +28,7 @@ import kr.kohub.dto.param.UserParam;
 import kr.kohub.dto.response.AdminMenuResponse;
 import kr.kohub.dto.response.MenuResponse;
 import kr.kohub.dto.response.NoticeBoardResponse;
+import kr.kohub.dto.response.PromotionResponse;
 import kr.kohub.dto.response.UserResponse;
 import kr.kohub.exception.AdminMenuNotFoundException;
 import kr.kohub.exception.BadRequestException;
@@ -39,6 +41,7 @@ import kr.kohub.service.PromotionService;
 import kr.kohub.service.UserService;
 import kr.kohub.type.ImageFileExtensionType;
 import kr.kohub.type.OrderOptionType;
+import kr.kohub.type.PromotionOrderType;
 import kr.kohub.type.UserAuthType;
 import kr.kohub.type.UserFilterType;
 import kr.kohub.type.UserOrderType;
@@ -214,14 +217,22 @@ public class kohubApiController {
 
   @CrossOrigin
   @GetMapping(path = "/admin/promotions")
-  public Map<String, Object> getPromotions() {
-    return Collections.emptyMap();
+  public Map<String, Object> getPromotions(
+      @RequestParam(name = "start", defaultValue = "0", required = true) int start) {
+    List<Promotion> promotions =
+        promotionService.getPromotions(start, PromotionOrderType.NO, OrderOptionType.ASC);
+
+    PromotionResponse promotionResponse =
+        PromotionResponse.builder().promotions(promotions).build();
+
+    return CollectionsUtil.convertObjectToMap(promotionResponse);
   }
 
   @CrossOrigin
   @PostMapping(path = "/admin/promotion")
   public Map<String, Object> postPromotion(@ModelAttribute @Valid PromotionParam promotionParam) {
 
+    // date 검사도 필요
     try {
       String fileName = promotionParam.getPromotionImage().getOriginalFilename();
       String fileExtension = FileUtil.getFileExtension(fileName);
@@ -275,10 +286,7 @@ public class kohubApiController {
   @PostMapping(path = "/notice")
   public Map<String, Object> postNotice(
       @RequestBody(required = true) @Valid NoticeBoardParam noticeBoardParam) {
-
-    // 서버에서도 date 이중으로 검사 필요.
     noticeService.addNotice(noticeBoardParam);
-
 
     return Collections.emptyMap();
   }

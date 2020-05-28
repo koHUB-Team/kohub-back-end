@@ -31,7 +31,7 @@ public class UserDao {
 
   public List<User> selectPaging(int start, UserOrderType userOrderType,
       OrderOptionType orderOptionType) {
-    List<User> users = null;;
+    List<User> users;
 
     try {
       Map<String, Object> params = new HashMap<>();

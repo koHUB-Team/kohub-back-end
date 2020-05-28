@@ -15,8 +15,8 @@ public class PromotionFileInfoDao {
   public PromotionFileInfoDao(DataSource dataSource) {
     this.jdbc = new NamedParameterJdbcTemplate(dataSource);
     this.insertAction = new SimpleJdbcInsert(dataSource).withTableName("promotion_file_info")
-        .usingGeneratedKeyColumns("id")
-        .usingColumns("file_name", "save_file_name", "content_type", "promotion_id");
+        .usingGeneratedKeyColumns("id").usingColumns("file_name", "save_file_name", "content_type",
+            "promotion_id", "image_type_id");
   }
 
   public int insert(PromotionFileInfo promotionFileInfo) {
