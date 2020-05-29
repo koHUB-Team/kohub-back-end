@@ -24,6 +24,7 @@ import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
 import kr.kohub.dto.param.NoticeBoardParam;
 import kr.kohub.dto.param.PromotionParam;
+import kr.kohub.dto.param.PromotionStateParam;
 import kr.kohub.dto.param.UserParam;
 import kr.kohub.dto.response.AdminMenuResponse;
 import kr.kohub.dto.response.MenuResponse;
@@ -34,6 +35,7 @@ import kr.kohub.exception.AdminMenuNotFoundException;
 import kr.kohub.exception.BadRequestException;
 import kr.kohub.exception.MenuNotFoundException;
 import kr.kohub.exception.NoticeBoardNotFoundException;
+import kr.kohub.exception.PromotionNotFoundException;
 import kr.kohub.exception.UserNotFoundException;
 import kr.kohub.service.MenuService;
 import kr.kohub.service.NoticeService;
@@ -41,7 +43,9 @@ import kr.kohub.service.PromotionService;
 import kr.kohub.service.UserService;
 import kr.kohub.type.ImageFileExtensionType;
 import kr.kohub.type.OrderOptionType;
+import kr.kohub.type.PromotionFilterType;
 import kr.kohub.type.PromotionOrderType;
+import kr.kohub.type.PromotionStateType;
 import kr.kohub.type.UserAuthType;
 import kr.kohub.type.UserFilterType;
 import kr.kohub.type.UserOrderType;
@@ -218,12 +222,52 @@ public class kohubApiController {
   @CrossOrigin
   @GetMapping(path = "/admin/promotions")
   public Map<String, Object> getPromotions(
-      @RequestParam(name = "start", defaultValue = "0", required = true) int start) {
-    List<Promotion> promotions =
-        promotionService.getPromotions(start, PromotionOrderType.NO, OrderOptionType.ASC);
+      @RequestParam(name = "start", defaultValue = "0", required = true) int start,
+      @RequestParam(name = "orderType", defaultValue = "NO", required = false) String orderType,
+      @RequestParam(name = "orderOption", defaultValue = "ASC",
+          required = false) String orderOption,
+      @RequestParam(name = "filterValue", required = false, defaultValue = "") String filterValue,
+      @RequestParam(name = "filterType", required = false,
+          defaultValue = "ALL") String filterType) {
 
-    PromotionResponse promotionResponse =
-        PromotionResponse.builder().promotions(promotions).build();
+    List<Promotion> promotions;
+    int totalCount;
+    try {
+      switch (PromotionFilterType.valueOf(filterType)) {
+        case ALL:
+          promotions = promotionService.getPromotions(start, PromotionOrderType.valueOf(orderType),
+              OrderOptionType.valueOf(orderOption));
+          totalCount = promotionService.getTotalPromotionCount();
+          break;
+        case STATE:
+          promotions =
+              promotionService.getPromotionsByState(start, PromotionStateType.valueOf(filterValue),
+                  PromotionOrderType.valueOf(orderType), OrderOptionType.valueOf(orderOption));
+          totalCount = promotionService
+              .getTotalPromotionCountByState(PromotionStateType.valueOf(filterValue));
+          break;
+
+        default:
+          throw new BadRequestException();
+      }
+
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException();
+    }
+
+    if (promotions == null) {
+      throw new PromotionNotFoundException();
+    }
+
+    int totalPromotionCount = promotionService.getTotalPromotionCount();
+    int totalPromotingCount =
+        promotionService.getTotalPromotionCountByState(PromotionStateType.PROMOTING);
+    int totalWaitingCount =
+        promotionService.getTotalPromotionCountByState(PromotionStateType.WAITING);
+
+    PromotionResponse promotionResponse = PromotionResponse.builder().promotions(promotions)
+        .totalCount(totalCount).totalPromotionCount(totalPromotionCount)
+        .totalPromotingCount(totalPromotingCount).totalWaitingCount(totalWaitingCount).build();
 
     return CollectionsUtil.convertObjectToMap(promotionResponse);
   }
@@ -232,7 +276,7 @@ public class kohubApiController {
   @PostMapping(path = "/admin/promotion")
   public Map<String, Object> postPromotion(@ModelAttribute @Valid PromotionParam promotionParam) {
 
-    // date 검사도 필요
+    // date검사도 필요
     try {
       String fileName = promotionParam.getPromotionImage().getOriginalFilename();
       String fileExtension = FileUtil.getFileExtension(fileName);
@@ -249,6 +293,26 @@ public class kohubApiController {
 
     int userId = user.getId();
     promotionService.addPromotion(promotionParam, userId);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @PutMapping(path = "/admin/promotions/{promotionId}/state")
+  public Map<String, Object> putPromotionState(@PathVariable(name = "promotionId") int promotionId,
+      @RequestBody(required = true) @Valid PromotionStateParam promotionStateParam) {
+    int updateCount = 0;
+    try {
+      String state = promotionStateParam.getState();
+      updateCount =
+          promotionService.changeStateByPromotionId(promotionId, PromotionStateType.valueOf(state));
+    } catch (IllegalArgumentException e) {
+      throw new BadRequestException();
+    }
+
+    if (updateCount == 0) {
+      throw new PromotionNotFoundException();
+    }
 
     return Collections.emptyMap();
   }

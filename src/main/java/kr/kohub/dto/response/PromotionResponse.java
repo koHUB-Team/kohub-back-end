@@ -15,4 +15,16 @@ import lombok.NonNull;
 public class PromotionResponse {
   @NonNull
   private List<Promotion> promotions;
+
+  @NonNull
+  private int totalCount;
+
+  @NonNull
+  private int totalPromotionCount;
+
+  @NonNull
+  private int totalPromotingCount;
+
+  @NonNull
+  private int totalWaitingCount;
 }

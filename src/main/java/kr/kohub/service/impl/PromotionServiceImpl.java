@@ -15,6 +15,8 @@ import kr.kohub.type.FilePathType;
 import kr.kohub.type.ImageType;
 import kr.kohub.type.OrderOptionType;
 import kr.kohub.type.PromotionOrderType;
+import kr.kohub.type.PromotionStateType;
+import kr.kohub.util.DateUtil;
 import kr.kohub.util.FileUtil;
 
 @Service
@@ -33,6 +35,26 @@ public class PromotionServiceImpl implements PromotionService {
   public List<Promotion> getPromotions(int start, PromotionOrderType promotionOrderType,
       OrderOptionType orderOptionType) {
     return promotionDao.selectPaging(start, promotionOrderType, orderOptionType);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public List<Promotion> getPromotionsByState(int start, PromotionStateType promotionStateType,
+      PromotionOrderType promotionOrderType, OrderOptionType orderOptionType) {
+    return promotionDao.selectPagingByState(start, promotionStateType, promotionOrderType,
+        orderOptionType);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public int getTotalPromotionCount() {
+    return promotionDao.selectTotalPromotionCount();
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public int getTotalPromotionCountByState(PromotionStateType promotionStateType) {
+    return promotionDao.selectTotalPromotionCountByState(promotionStateType);
   }
 
   @Transactional(readOnly = false)
@@ -62,4 +84,10 @@ public class PromotionServiceImpl implements PromotionService {
     return 0;
   }
 
+  @Transactional(readOnly = false)
+  @Override
+  public int changeStateByPromotionId(int promotionId, PromotionStateType promotionStateType) {
+    String modifyDate = DateUtil.getNowDate();
+    return promotionDao.updateState(promotionId, promotionStateType, modifyDate);
+  }
 }

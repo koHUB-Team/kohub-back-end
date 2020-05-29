@@ -1,5 +1,6 @@
 package kr.kohub.dao;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import kr.kohub.dto.Promotion;
 import kr.kohub.dto.param.PromotionParam;
 import kr.kohub.type.OrderOptionType;
 import kr.kohub.type.PromotionOrderType;
+import kr.kohub.type.PromotionStateType;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -55,6 +57,64 @@ public class PromotionDao {
     return promotions;
   }
 
+  public List<Promotion> selectPagingByState(int start, PromotionStateType promotionStateType,
+      PromotionOrderType promotionOrderType, OrderOptionType orderOptionType) {
+    List<Promotion> promotions;
+
+    try {
+      Map<String, Object> params = new HashMap<>();
+      params.put("start", start);
+      params.put("limit", PromotionDaoSql.LIMIT);
+      params.put("promotionStateType", promotionStateType.name().toLowerCase());
+
+      promotions = jdbc.query(String.format(PromotionDaoSql.SELECT_PAGING_BY_STATE,
+          promotionOrderType.getTypeName(), orderOptionType.getTypeName()), params, rowMapper);
+
+    } catch (EmptyResultDataAccessException e) {
+      promotions = null;
+    } catch (NullPointerException e) {
+      promotions = null;
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      promotions = null;
+    }
+
+    return promotions;
+  }
+
+  public int selectTotalPromotionCount() {
+    int totalCount;
+    try {
+      totalCount = jdbc.queryForObject(PromotionDaoSql.SELECT_TOTAL_PROMOTION_COUNT,
+          Collections.emptyMap(), Integer.class);
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      totalCount = 0;
+    }
+
+    return totalCount;
+  }
+
+  public int selectTotalPromotionCountByState(PromotionStateType promotionStateType) {
+    int stateCount;
+    try {
+      Map<String, Object> params = new HashMap<>();
+      params.put("promotionStateType", promotionStateType.name().toLowerCase());
+
+      stateCount = jdbc.queryForObject(PromotionDaoSql.SELECT_TOTAL_PROMOTION_COUNT_BY_STATE,
+          params, Integer.class);
+    } catch (EmptyResultDataAccessException e) {
+      stateCount = 0;
+    } catch (NullPointerException e) {
+      stateCount = 0;
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      stateCount = 0;
+    }
+
+    return stateCount;
+  }
+
   public int insert(PromotionParam promotionParam, int userId) {
     Map<String, Object> params = new HashMap<>();
     params.put("title", promotionParam.getTitle());
@@ -65,5 +125,15 @@ public class PromotionDao {
     params.put("user_id", userId);
 
     return insertAction.executeAndReturnKey(params).intValue();
+  }
+
+  public int updateState(int promotionId, PromotionStateType promotionStateType,
+      String modifyDate) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("state", promotionStateType.name().toLowerCase());
+    params.put("promotionId", promotionId);
+    params.put("modifyDate", modifyDate);
+
+    return jdbc.update(PromotionDaoSql.UPDATE_STATE, params);
   }
 }
