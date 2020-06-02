@@ -3,13 +3,16 @@ package kr.kohub.util;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
@@ -98,6 +101,33 @@ public class FileUtil {
     return fileName;
   }
 
+  public void download(String fileName, String saveFileName, String contentType,
+      FilePathType filePathType, HttpServletResponse response) {
+    String rootPath = getRootPath();
+    String uploadPath = getUploadFilePath(filePathType);
+    String filePath = rootPath + uploadPath + saveFileName;
+
+    try (FileInputStream fis = new FileInputStream(filePath);
+        OutputStream out = response.getOutputStream();) {
+
+      int readCount = 0;
+      byte[] buffer = new byte[1024];
+      while ((readCount = fis.read(buffer)) != -1) {
+        out.write(buffer, 0, readCount);
+      }
+
+      response.setHeader("Content-Length", "" + readCount);
+      response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
+      response.setHeader("Content-Transfer-Encoding", "binary");
+      response.setHeader("Content-Type", contentType);
+      response.setHeader("Pragma", "no-cache;");
+      response.setHeader("Expires", "-1;");
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+
   public void delete(String fileName, FilePathType filePathType) {
     String rootPath = getRootPath();
     String uploadPath = getUploadFilePath(filePathType);
@@ -148,37 +178,4 @@ public class FileUtil {
     String key = before + "." + env.getProperty("environment");
     return env.getProperty(key);
   }
-
-  // private
-
-  // public static boolean download(FileInfo fileInfo, HttpServletResponse response) {
-  // boolean didDownload = false;
-  //
-  // String fileName = fileInfo.getFileName();
-  // String saveFileName = ROOT_DIR_FOR_WINDOW + fileInfo.getSaveFileName();
-  // String contentType = fileInfo.getContentType();
-  //
-  // try (FileInputStream fis = new FileInputStream(saveFileName);
-  // OutputStream out = response.getOutputStream();) {
-  //
-  // int readCount = 0;
-  // byte[] buffer = new byte[1024];
-  // while ((readCount = fis.read(buffer)) != -1) {
-  // out.write(buffer, 0, readCount);
-  // }
-  //
-  // response.setHeader("Content-Length", "" + readCount);
-  // response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\";");
-  // response.setHeader("Content-Transfer-Encoding", "binary");
-  // response.setHeader("Content-Type", contentType);
-  // response.setHeader("Pragma", "no-cache;");
-  // response.setHeader("Expires", "-1;");
-  //
-  // didDownload = true;
-  // } catch (Exception e) {
-  // log.error(e.getMessage());
-  // }
-  //
-  // return didDownload;
-  // }
 }
