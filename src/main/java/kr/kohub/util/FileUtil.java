@@ -98,6 +98,21 @@ public class FileUtil {
     return fileName;
   }
 
+  public void delete(String fileName, FilePathType filePathType) {
+    String rootPath = getRootPath();
+    String uploadPath = getUploadFilePath(filePathType);
+    String filePath = rootPath + uploadPath + fileName;
+
+    File file = new File(filePath);
+    if (!file.exists()) {
+      throw new RuntimeException("File to delete Not Found Exception.");
+    }
+
+    if (!file.delete()) {
+      throw new RuntimeException("File deletion Error Exception.");
+    }
+  }
+
   private static void checkDirectory(File dir) {
     if (!dir.isDirectory()) {
       dir.mkdirs();

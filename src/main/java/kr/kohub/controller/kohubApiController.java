@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -311,6 +312,19 @@ public class kohubApiController {
     }
 
     if (updateCount == 0) {
+      throw new PromotionNotFoundException();
+    }
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @DeleteMapping(path = "/admin/promotions/{promotionId}")
+  public Map<String, Object> deletePromotion(@PathVariable(name = "promotionId") int promotionId) {
+    int deleteCount = 0;
+    deleteCount = promotionService.removePromotionById(promotionId);
+
+    if (deleteCount == 0) {
       throw new PromotionNotFoundException();
     }
 

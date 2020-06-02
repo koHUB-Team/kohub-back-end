@@ -136,4 +136,11 @@ public class PromotionDao {
 
     return jdbc.update(PromotionDaoSql.UPDATE_STATE, params);
   }
+
+  public int deleteById(int promotionId) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("promotionId", promotionId);
+
+    return jdbc.update(PromotionDaoSql.DELETE_BY_ID, params);
+  }
 }

@@ -16,4 +16,6 @@ public class PromotionDaoSql {
 
   public static final String UPDATE_STATE =
       "UPDATE promotion SET state=:state, modify_date=:modifyDate WHERE id=:promotionId";
+
+  public static final String DELETE_BY_ID = "DELETE FROM promotion WHERE id = :promotionId";
 }

@@ -90,4 +90,25 @@ public class PromotionServiceImpl implements PromotionService {
     String modifyDate = DateUtil.getNowDate();
     return promotionDao.updateState(promotionId, promotionStateType, modifyDate);
   }
+
+  @Transactional(readOnly = false)
+  @Override
+  public int removePromotionById(int promotionId) {
+    int deleteCount = 0;
+
+    List<PromotionFileInfo> promotionFileInfos =
+        promotionFileInfoDao.selectByPromotionId(promotionId);
+
+    for (PromotionFileInfo promotionFileInfo : promotionFileInfos) {
+      int promotionFileInfoId = promotionFileInfo.getId();
+      deleteCount += promotionFileInfoDao.deleteById(promotionFileInfoId);
+      fileUtil.delete(promotionFileInfo.getSaveFileName(), FilePathType.PROMOTION);
+    }
+
+    deleteCount += promotionDao.deleteById(promotionId);
+
+    return deleteCount;
+  }
+
+
 }

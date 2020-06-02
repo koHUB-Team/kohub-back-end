@@ -21,4 +21,6 @@ public interface PromotionService {
   public int addPromotion(PromotionParam promotionParam, int userId);
 
   public int changeStateByPromotionId(int promotionId, PromotionStateType promotionStateType);
+
+  public int removePromotionById(int promotionId);
 }
