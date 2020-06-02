@@ -2,6 +2,7 @@ package kr.kohub.dto.response;
 
 import java.util.List;
 import kr.kohub.dto.Promotion;
+import kr.kohub.dto.PromotionFileInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,14 +18,16 @@ public class PromotionResponse {
   private List<Promotion> promotions;
 
   @NonNull
+  private List<PromotionFileInfo> promotionImages;
+
   private int totalCount;
 
-  @NonNull
+
   private int totalPromotionCount;
 
-  @NonNull
+
   private int totalPromotingCount;
 
-  @NonNull
+
   private int totalWaitingCount;
 }

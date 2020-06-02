@@ -2,12 +2,15 @@ package kr.kohub.service;
 
 import java.util.List;
 import kr.kohub.dto.Promotion;
+import kr.kohub.dto.PromotionFileInfo;
 import kr.kohub.dto.param.PromotionParam;
 import kr.kohub.type.OrderOptionType;
 import kr.kohub.type.PromotionOrderType;
 import kr.kohub.type.PromotionStateType;
 
 public interface PromotionService {
+  public Promotion getPromotionById(int promotionId);
+
   public List<Promotion> getPromotions(int start, PromotionOrderType promotionOrderType,
       OrderOptionType orderOptionType);
 
@@ -23,4 +26,8 @@ public interface PromotionService {
   public int changeStateByPromotionId(int promotionId, PromotionStateType promotionStateType);
 
   public int removePromotionById(int promotionId);
+
+  public PromotionFileInfo getPromotionImageById(int promotionFileInfoId);
+
+  public List<PromotionFileInfo> getPromotionImages(int promotionId);
 }

@@ -21,6 +21,7 @@ import kr.kohub.dto.AdminMenu;
 import kr.kohub.dto.Menu;
 import kr.kohub.dto.NoticeBoard;
 import kr.kohub.dto.Promotion;
+import kr.kohub.dto.PromotionFileInfo;
 import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
 import kr.kohub.dto.param.NoticeBoardParam;
@@ -34,6 +35,7 @@ import kr.kohub.dto.response.PromotionResponse;
 import kr.kohub.dto.response.UserResponse;
 import kr.kohub.exception.AdminMenuNotFoundException;
 import kr.kohub.exception.BadRequestException;
+import kr.kohub.exception.FileInfoNotFoundException;
 import kr.kohub.exception.MenuNotFoundException;
 import kr.kohub.exception.NoticeBoardNotFoundException;
 import kr.kohub.exception.PromotionNotFoundException;
@@ -260,15 +262,54 @@ public class kohubApiController {
       throw new PromotionNotFoundException();
     }
 
+    List<PromotionFileInfo> promotionImages = new ArrayList<>();
+    for (Promotion promotion : promotions) {
+      int promotionId = promotion.getId();
+      List<PromotionFileInfo> promotionFileInfos = promotionService.getPromotionImages(promotionId);
+
+      if (promotionFileInfos == null) {
+        throw new FileInfoNotFoundException();
+      }
+
+      for (PromotionFileInfo promotionFileInfo : promotionFileInfos) {
+        promotionImages.add(promotionFileInfo);
+      }
+    }
+
     int totalPromotionCount = promotionService.getTotalPromotionCount();
     int totalPromotingCount =
         promotionService.getTotalPromotionCountByState(PromotionStateType.PROMOTING);
     int totalWaitingCount =
         promotionService.getTotalPromotionCountByState(PromotionStateType.WAITING);
 
-    PromotionResponse promotionResponse = PromotionResponse.builder().promotions(promotions)
-        .totalCount(totalCount).totalPromotionCount(totalPromotionCount)
-        .totalPromotingCount(totalPromotingCount).totalWaitingCount(totalWaitingCount).build();
+    PromotionResponse promotionResponse =
+        PromotionResponse.builder().promotions(promotions).totalCount(totalCount)
+            .totalPromotionCount(totalPromotionCount).totalPromotingCount(totalPromotingCount)
+            .totalWaitingCount(totalWaitingCount).promotionImages(promotionImages).build();
+
+    return CollectionsUtil.convertObjectToMap(promotionResponse);
+  }
+
+  @CrossOrigin
+  @GetMapping(path = "/admin/promotions/{promotionId}")
+  public Map<String, Object> getPromotion(
+      @PathVariable(required = true, name = "promotionId") int promotionId) {
+
+    Promotion promotion = promotionService.getPromotionById(promotionId);
+    if (promotion == null) {
+      throw new PromotionNotFoundException();
+    }
+
+    List<PromotionFileInfo> promotionImages = promotionService.getPromotionImages(promotionId);
+    if (promotionImages == null) {
+      throw new FileInfoNotFoundException();
+    }
+
+    List<Promotion> promotions = new ArrayList<>();
+    promotions.add(promotion);
+
+    PromotionResponse promotionResponse =
+        PromotionResponse.builder().promotions(promotions).promotionImages(promotionImages).build();
 
     return CollectionsUtil.convertObjectToMap(promotionResponse);
   }
@@ -320,7 +361,8 @@ public class kohubApiController {
 
   @CrossOrigin
   @DeleteMapping(path = "/admin/promotions/{promotionId}")
-  public Map<String, Object> deletePromotion(@PathVariable(name = "promotionId") int promotionId) {
+  public Map<String, Object> deletePromotion(
+      @PathVariable(name = "promotionId", required = true) int promotionId) {
     int deleteCount = 0;
     deleteCount = promotionService.removePromotionById(promotionId);
 

@@ -12,7 +12,7 @@ import lombok.NonNull;
 @Builder
 public class Promotion {
   @NonNull
-  private String id;
+  private int id;
 
   @NonNull
   private String title;

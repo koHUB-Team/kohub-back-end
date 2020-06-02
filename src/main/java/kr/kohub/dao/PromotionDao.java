@@ -33,6 +33,25 @@ public class PromotionDao {
             .usingColumns("title", "email", "start_date", "end_date", "content", "user_id");
   }
 
+  public Promotion seletById(int promotionId) {
+    Promotion promotion;
+    try {
+      Map<String, Object> params = new HashMap<>();
+      params.put("promotionId", promotionId);
+
+      promotion = jdbc.queryForObject(PromotionDaoSql.SELECT_BY_ID, params, rowMapper);
+    } catch (EmptyResultDataAccessException e) {
+      promotion = null;
+    } catch (NullPointerException e) {
+      promotion = null;
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      promotion = null;
+    }
+
+    return promotion;
+  }
+
   public List<Promotion> selectPaging(int start, PromotionOrderType promotionOrderType,
       OrderOptionType orderOptionType) {
     List<Promotion> promotions;

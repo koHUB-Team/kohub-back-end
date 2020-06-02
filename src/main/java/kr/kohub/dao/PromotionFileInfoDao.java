@@ -7,12 +7,12 @@ import javax.sql.DataSource;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import kr.kohub.dao.sql.PromotionFileInfoDaoSql;
 import kr.kohub.dto.PromotionFileInfo;
+import kr.kohub.type.ImageType;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -30,9 +30,36 @@ public class PromotionFileInfoDao {
             "promotion_id", "image_type_id");
   }
 
-  public int insert(PromotionFileInfo promotionFileInfo) {
-    BeanPropertySqlParameterSource params = new BeanPropertySqlParameterSource(promotionFileInfo);
+  public int insert(PromotionFileInfo promotionFileInfo, ImageType imageType) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("fileName", promotionFileInfo.getFileName());
+    params.put("saveFileName", promotionFileInfo.getSaveFileName());
+    params.put("contentType", promotionFileInfo.getContentType());
+    params.put("promotionId", promotionFileInfo.getPromotionId());
+    params.put("imageTypeId", imageType.getImageTypeId());
+
     return insertAction.execute(params);
+  }
+
+  public PromotionFileInfo selectById(int promotionFileInfoId) {
+    PromotionFileInfo promotionFileInfo;
+
+    try {
+      Map<String, Object> params = new HashMap<>();
+      params.put("promotionFileInfoId", promotionFileInfoId);
+
+      promotionFileInfo =
+          jdbc.queryForObject(PromotionFileInfoDaoSql.SELECT_BY_ID, params, rowMapper);
+    } catch (EmptyResultDataAccessException e) {
+      promotionFileInfo = null;
+    } catch (NullPointerException e) {
+      promotionFileInfo = null;
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      promotionFileInfo = null;
+    }
+
+    return promotionFileInfo;
   }
 
   public List<PromotionFileInfo> selectByPromotionId(int promotionId) {

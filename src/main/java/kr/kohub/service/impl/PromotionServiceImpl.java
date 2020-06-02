@@ -32,6 +32,12 @@ public class PromotionServiceImpl implements PromotionService {
 
   @Transactional(readOnly = true)
   @Override
+  public Promotion getPromotionById(int promotionId) {
+    return promotionDao.seletById(promotionId);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
   public List<Promotion> getPromotions(int start, PromotionOrderType promotionOrderType,
       OrderOptionType orderOptionType) {
     return promotionDao.selectPaging(start, promotionOrderType, orderOptionType);
@@ -68,18 +74,16 @@ public class PromotionServiceImpl implements PromotionService {
     String contentType = promotinImageFile.getContentType();
 
     PromotionFileInfo promotionFileInfo = PromotionFileInfo.builder().fileName(fileName)
-        .saveFileName(saveFileName).contentType(contentType).promotionId(promotionId)
-        .imageTypeId(ImageType.MA.getImageTypeId()).build();
+        .saveFileName(saveFileName).contentType(contentType).promotionId(promotionId).build();
 
-    promotionFileInfoDao.insert(promotionFileInfo);
+    promotionFileInfoDao.insert(promotionFileInfo, ImageType.MA);
 
     String thumbSaveFileName = fileUtil.uploadThumbImg(saveFileName, 2, FilePathType.PROMOTION);
 
     promotionFileInfo = PromotionFileInfo.builder().fileName(fileName)
-        .saveFileName(thumbSaveFileName).contentType("image/jpg").promotionId(promotionId)
-        .imageTypeId(ImageType.TH.getImageTypeId()).build();
+        .saveFileName(thumbSaveFileName).contentType("image/jpg").promotionId(promotionId).build();
 
-    promotionFileInfoDao.insert(promotionFileInfo);
+    promotionFileInfoDao.insert(promotionFileInfo, ImageType.TH);
 
     return 0;
   }
@@ -110,5 +114,15 @@ public class PromotionServiceImpl implements PromotionService {
     return deleteCount;
   }
 
+  @Transactional(readOnly = true)
+  @Override
+  public PromotionFileInfo getPromotionImageById(int promotionFileInfoId) {
+    return promotionFileInfoDao.selectById(promotionFileInfoId);
+  }
 
+  @Transactional(readOnly = true)
+  @Override
+  public List<PromotionFileInfo> getPromotionImages(int promotionId) {
+    return promotionFileInfoDao.selectByPromotionId(promotionId);
+  }
 }
