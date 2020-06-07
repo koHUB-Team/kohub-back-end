@@ -360,6 +360,15 @@ public class kohubApiController {
   }
 
   @CrossOrigin
+  @PutMapping(path = "/admin/promotions/{promotionId}")
+  public Map<String, Object> putPromotion(@ModelAttribute @Valid PromotionParam promotionParam,
+      @PathVariable(name = "promotionId") int promotionId) {
+    promotionService.changePromotionByPromotionId(promotionId, promotionParam);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
   @DeleteMapping(path = "/admin/promotions/{promotionId}")
   public Map<String, Object> deletePromotion(
       @PathVariable(name = "promotionId", required = true) int promotionId) {

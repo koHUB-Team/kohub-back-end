@@ -146,6 +146,19 @@ public class PromotionDao {
     return insertAction.executeAndReturnKey(params).intValue();
   }
 
+  public int update(int promotionId, PromotionParam promotionParam, String modifyDate) {
+    Map<String, Object> params = new HashMap<>();
+    params.put("promotionId", promotionId);
+    params.put("title", promotionParam.getTitle());
+    params.put("email", promotionParam.getEmail());
+    params.put("startDate", promotionParam.getStartDate());
+    params.put("endDate", promotionParam.getEndDate());
+    params.put("content", promotionParam.getContent());
+    params.put("modifyDate", modifyDate);
+
+    return jdbc.update(PromotionDaoSql.UPDATE, params);
+  }
+
   public int updateState(int promotionId, PromotionStateType promotionStateType,
       String modifyDate) {
     Map<String, Object> params = new HashMap<>();

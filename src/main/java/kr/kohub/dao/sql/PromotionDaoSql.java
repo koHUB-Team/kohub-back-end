@@ -20,5 +20,8 @@ public class PromotionDaoSql {
   public static final String UPDATE_STATE =
       "UPDATE promotion SET state=:state, modify_date=:modifyDate WHERE id=:promotionId";
 
+  public static final String UPDATE =
+      "UPDATE promotion SET title=:title, email=:email, modify_date=:modifyDate, start_date=:startDate, end_date=:endDate, content=:content WHERE id=:promotionId";
+
   public static final String DELETE_BY_ID = "DELETE FROM promotion WHERE id = :promotionId";
 }

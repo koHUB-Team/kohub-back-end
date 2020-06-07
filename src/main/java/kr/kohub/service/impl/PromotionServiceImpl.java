@@ -65,27 +65,65 @@ public class PromotionServiceImpl implements PromotionService {
 
   @Transactional(readOnly = false)
   @Override
-  public int addPromotion(PromotionParam promotionParam, int userId) {
+  public void addPromotion(PromotionParam promotionParam, int userId) {
     int promotionId = promotionDao.insert(promotionParam, userId);
 
-    MultipartFile promotinImageFile = promotionParam.getPromotionImage();
-    String saveFileName = fileUtil.upload(promotinImageFile, FilePathType.PROMOTION);
-    String fileName = promotinImageFile.getOriginalFilename();
-    String contentType = promotinImageFile.getContentType();
+    MultipartFile promotionImage = promotionParam.getPromotionImage();
+    int insertCount = addPromotionImage(promotionImage, promotionId);
+
+    if (insertCount == 0) {
+      throw new RuntimeException("Promotion did not insert Exception");
+    }
+  }
+
+  @Transactional(readOnly = false)
+  @Override
+  public int addPromotionImage(MultipartFile promotionImage, int promotionId) {
+    int insertCount = 0;
+
+    String saveFileName = fileUtil.upload(promotionImage, FilePathType.PROMOTION);
+    String fileName = promotionImage.getOriginalFilename();
+    String contentType = promotionImage.getContentType();
 
     PromotionFileInfo promotionFileInfo = PromotionFileInfo.builder().fileName(fileName)
         .saveFileName(saveFileName).contentType(contentType).promotionId(promotionId).build();
-
-    promotionFileInfoDao.insert(promotionFileInfo, ImageType.MA);
+    insertCount += promotionFileInfoDao.insert(promotionFileInfo, ImageType.MA);
 
     String thumbSaveFileName = fileUtil.uploadThumbImg(saveFileName, 2, FilePathType.PROMOTION);
-
     promotionFileInfo = PromotionFileInfo.builder().fileName(fileName)
         .saveFileName(thumbSaveFileName).contentType("image/jpg").promotionId(promotionId).build();
+    insertCount += promotionFileInfoDao.insert(promotionFileInfo, ImageType.TH);
 
-    promotionFileInfoDao.insert(promotionFileInfo, ImageType.TH);
+    if (insertCount < 2) {
+      throw new RuntimeException("Promotion image did not insert Exception.");
+    }
 
-    return 0;
+    return insertCount;
+  }
+
+  @Transactional(readOnly = false)
+  @Override
+  public void changePromotionByPromotionId(int promotionId, PromotionParam promotionParam) {
+    int updateCount = 0;
+    String modifyDate = DateUtil.getNowDate();
+    updateCount = promotionDao.update(promotionId, promotionParam, modifyDate);
+
+    if (updateCount == 0) {
+      throw new RuntimeException("Promotion did not update Exception.");
+    }
+
+    MultipartFile promotionImage = promotionParam.getPromotionImage();
+    if (promotionImage != null) {
+      int deleteCount = removePromotionById(promotionId);
+      if (deleteCount == 0) {
+        throw new RuntimeException("Promotion image did not delete exception");
+      }
+
+      int insertCount = addPromotionImage(promotionImage, promotionId);
+      if (insertCount == 0) {
+        throw new RuntimeException("Promotion image did not insert exception");
+      }
+    }
   }
 
   @Transactional(readOnly = false)

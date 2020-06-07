@@ -1,6 +1,7 @@
 package kr.kohub.service;
 
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 import kr.kohub.dto.Promotion;
 import kr.kohub.dto.PromotionFileInfo;
 import kr.kohub.dto.param.PromotionParam;
@@ -21,7 +22,11 @@ public interface PromotionService {
 
   public int getTotalPromotionCountByState(PromotionStateType promotionStateType);
 
-  public int addPromotion(PromotionParam promotionParam, int userId);
+  public void addPromotion(PromotionParam promotionParam, int userId);
+
+  public int addPromotionImage(MultipartFile promotionImage, int promotionId);
+
+  public void changePromotionByPromotionId(int promotionId, PromotionParam promotionParam);
 
   public int changeStateByPromotionId(int promotionId, PromotionStateType promotionStateType);
 

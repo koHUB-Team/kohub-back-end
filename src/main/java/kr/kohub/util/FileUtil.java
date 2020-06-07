@@ -43,8 +43,6 @@ public class FileUtil {
     String loadFilePath = rootPath + uploadPath + loadFileName;
     String saveFileName = getUUIDFileName(".jpg");
     String saveFilePath = rootPath + uploadPath + saveFileName;
-    System.out.println("loadFilePath : " + loadFilePath);
-    System.out.println("saveFilePath : " + saveFilePath);
 
     File thumbFile = new File(saveFilePath); // 썸네일 이미지
     // RenderedOp renderedOp = JAI.create("fileload", loadFilePath); // 원본 이미지

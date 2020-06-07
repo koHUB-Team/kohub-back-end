@@ -32,11 +32,11 @@ public class PromotionFileInfoDao {
 
   public int insert(PromotionFileInfo promotionFileInfo, ImageType imageType) {
     Map<String, Object> params = new HashMap<>();
-    params.put("fileName", promotionFileInfo.getFileName());
-    params.put("saveFileName", promotionFileInfo.getSaveFileName());
-    params.put("contentType", promotionFileInfo.getContentType());
-    params.put("promotionId", promotionFileInfo.getPromotionId());
-    params.put("imageTypeId", imageType.getImageTypeId());
+    params.put("file_name", promotionFileInfo.getFileName());
+    params.put("save_file_name", promotionFileInfo.getSaveFileName());
+    params.put("content_type", promotionFileInfo.getContentType());
+    params.put("promotion_id", promotionFileInfo.getPromotionId());
+    params.put("image_type_id", imageType.getImageTypeId());
 
     return insertAction.execute(params);
   }
