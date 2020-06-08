@@ -15,5 +15,5 @@ public class NoticeBoardDaoSql {
       "DELETE FROM notice_board WHERE notice_board.id = :noticeId";
 
   public static final String UPDATE =
-      "UPDATE notice_board SET title=:title, content=:content, modify_date=:modifyDate WHERE id=:noticeId;";
+      "UPDATE notice_board SET title=:title, content=:content, modify_date=:modifyDate WHERE id=:noticeId";
 }

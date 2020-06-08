@@ -20,24 +20,29 @@ import kr.kohub.dto.AdminMenu;
 import kr.kohub.dto.Faq;
 import kr.kohub.dto.Menu;
 import kr.kohub.dto.NoticeBoard;
+import kr.kohub.dto.Qna;
 import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
 import kr.kohub.dto.param.NoticeBoardParam;
+import kr.kohub.dto.param.QnaParam;
 import kr.kohub.dto.param.UserParam;
 import kr.kohub.dto.response.AdminMenuResponse;
 import kr.kohub.dto.response.FaqResponse;
 import kr.kohub.dto.response.MenuResponse;
 import kr.kohub.dto.response.NoticeBoardResponse;
+import kr.kohub.dto.response.QnaResponse;
 import kr.kohub.dto.response.UserResponse;
 import kr.kohub.exception.AdminMenuNotFoundException;
 import kr.kohub.exception.BadRequestException;
 import kr.kohub.exception.FaqNotFoundException;
 import kr.kohub.exception.MenuNotFoundException;
 import kr.kohub.exception.NoticeBoardNotFoundException;
+import kr.kohub.exception.QnaNotFoundException;
 import kr.kohub.exception.UserNotFoundException;
 import kr.kohub.service.FaqService;
 import kr.kohub.service.MenuService;
 import kr.kohub.service.NoticeService;
+import kr.kohub.service.QnaService;
 import kr.kohub.service.UserService;
 import kr.kohub.type.OrderOptionType;
 import kr.kohub.type.UserAuthType;
@@ -61,6 +66,9 @@ public class kohubApiController {
 
   @Autowired
   FaqService faqService;
+
+  @Autowired
+  QnaService qnaService;
 
   @CrossOrigin
   @GetMapping(path = "/menus")
@@ -296,4 +304,89 @@ public class kohubApiController {
 
     return CollectionsUtil.convertObjectToMap(faqResponse);
   }
+
+  @CrossOrigin
+  @GetMapping(path = "/qnas")
+  public Map<String, Object> getQnas(
+      @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
+
+    List<Qna> qnas = qnaService.getQnas(start);
+    if (qnas == null) {
+      throw new QnaNotFoundException();
+    }
+    int totalQnaCount = qnaService.getTotalQnaCount();
+    QnaResponse qnaResponse = QnaResponse.builder().qnas(qnas).totalQnaCount(totalQnaCount).build();
+    return CollectionsUtil.convertObjectToMap(qnaResponse);
+  }
+
+  @CrossOrigin
+  @GetMapping(path = "/qna/search")
+  public Map<String, Object> searchQna(
+      @RequestParam(name = "title", required = true, defaultValue = "") String title,
+      @RequestParam(name = "userName", required = true, defaultValue = "") String userName) {
+
+    List<Qna> qnas = null;
+    int totalQnaCount = 0;
+    if (title.equals("")) {
+      qnas = qnaService.getQnasByName(userName);
+      totalQnaCount = qnas.size();
+    } else if (userName.equals("")) {
+      qnas = qnaService.getQnasByTitle(title);
+      totalQnaCount = qnas.size();
+    }
+
+    QnaResponse qnaResponse = QnaResponse.builder().qnas(qnas).totalQnaCount(totalQnaCount).build();
+    return CollectionsUtil.convertObjectToMap(qnaResponse);
+  }
+
+  @CrossOrigin
+  @GetMapping(path = "/qna")
+  public Map<String, Object> getQna(@RequestParam(name = "qnaId", required = true) int qnaId) {
+    Qna qna = qnaService.getQna(qnaId);
+
+    if (qna == null) {
+      throw new QnaNotFoundException();
+    }
+
+    return CollectionsUtil.convertObjectToMap(qna);
+  }
+
+  @CrossOrigin
+  @PostMapping(path = "/qna")
+  public Map<String, Object> postQna(@RequestBody(required = true) @Valid QnaParam qnaParam) {
+    qnaService.addQna(qnaParam);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @DeleteMapping(path = "/qnas/{qnaId}")
+  public Map<String, Object> deleteQna(@PathVariable(name = "qnaId", required = true) int qnaId) {
+    Qna qna = qnaService.getQna(qnaId);
+    if (qna == null) {
+      throw new BadRequestException();
+    }
+    qnaService.removeQna(qnaId);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @PutMapping(path = "/qnas/{qnaId}")
+  public Map<String, Object> putQna(@PathVariable(name = "qnaId") int qnaId,
+      @RequestBody(required = true) @Valid QnaParam qnaParam) {
+    Qna qna = qnaService.getQna(qnaId);
+    if (qna == null) {
+      throw new BadRequestException();
+    }
+
+    String title = qnaParam.getTitle();
+    String content = qnaParam.getContent();
+    String category = qnaParam.getCategory();
+
+    qnaService.changeQna(qnaId, title, content, category);
+
+    return Collections.emptyMap();
+  }
 }
+

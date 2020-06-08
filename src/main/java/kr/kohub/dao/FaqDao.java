@@ -20,8 +20,10 @@ public class FaqDao {
   private NamedParameterJdbcTemplate jdbc;
   private RowMapper<Faq> rowMapper = BeanPropertyRowMapper.newInstance(Faq.class);
 
+
   public FaqDao(DataSource dataSource) {
     this.jdbc = new NamedParameterJdbcTemplate(dataSource);
+
   }
 
   public List<Faq> selectPaging(int start) {
