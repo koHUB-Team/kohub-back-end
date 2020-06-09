@@ -21,6 +21,7 @@ import kr.kohub.dto.Faq;
 import kr.kohub.dto.Menu;
 import kr.kohub.dto.NoticeBoard;
 import kr.kohub.dto.Qna;
+import kr.kohub.dto.QnaComment;
 import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
 import kr.kohub.dto.param.NoticeBoardParam;
@@ -42,6 +43,7 @@ import kr.kohub.exception.UserNotFoundException;
 import kr.kohub.service.FaqService;
 import kr.kohub.service.MenuService;
 import kr.kohub.service.NoticeService;
+import kr.kohub.service.QnaCommentService;
 import kr.kohub.service.QnaService;
 import kr.kohub.service.UserService;
 import kr.kohub.type.OrderOptionType;
@@ -69,6 +71,9 @@ public class kohubApiController {
 
   @Autowired
   QnaService qnaService;
+
+  @Autowired
+  QnaCommentService qnaCommentService;
 
   @CrossOrigin
   @GetMapping(path = "/menus")
@@ -343,12 +348,20 @@ public class kohubApiController {
   @GetMapping(path = "/qna")
   public Map<String, Object> getQna(@RequestParam(name = "qnaId", required = true) int qnaId) {
     Qna qna = qnaService.getQna(qnaId);
+    QnaComment qnaComment = qnaCommentService.geteQnaComment(qnaId);
+
+    QnaResponse qnaResponse = null;
 
     if (qna == null) {
       throw new QnaNotFoundException();
     }
+    if (qnaComment == null) {
+      qnaResponse = QnaResponse.builder().qna(qna).build();
+    } else {
+      qnaResponse = QnaResponse.builder().qna(qna).qnaComment(qnaComment).build();
+    }
 
-    return CollectionsUtil.convertObjectToMap(qna);
+    return CollectionsUtil.convertObjectToMap(qnaResponse);
   }
 
   @CrossOrigin
@@ -388,5 +401,6 @@ public class kohubApiController {
 
     return Collections.emptyMap();
   }
+
 }
 
