@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import kr.kohub.argumentresolver.HandlerMapArgumentResolver;
 import kr.kohub.intercepter.LogInterceptor;
+import kr.kohub.multipartresolver.PutAwareCommonsMultipartResolver;
 
 
 @Configuration
@@ -55,5 +57,12 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
     argumentResolvers.add(new HandlerMapArgumentResolver());
+  }
+
+  @Bean
+  public MultipartResolver multipartResolver() {
+    PutAwareCommonsMultipartResolver multipartResolver = new PutAwareCommonsMultipartResolver();
+    multipartResolver.setMaxUploadSize(1024 * 1024 * 1024); // 100MB 수정필요
+    return multipartResolver;
   }
 }

@@ -1,0 +1,9 @@
+diff a/src/main/java/kr/kohub/dto/response/NoticeBoardResponse.java b/src/main/java/kr/kohub/dto/response/NoticeBoardResponse.java	(rejected hunks)
+@@ -16,6 +16,7 @@
+ 
+   @NonNull
+   private List<NoticeBoard> items;
++
+   @NonNull
+   private int totalNoticeCount;
+ 
