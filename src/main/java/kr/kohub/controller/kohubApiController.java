@@ -20,48 +20,40 @@ import org.springframework.web.bind.annotation.RestController;
 import kr.kohub.dto.AdminMenu;
 import kr.kohub.dto.Faq;
 import kr.kohub.dto.Menu;
-import kr.kohub.dto.NoticeBoard;<<<<<<<HEAD
+import kr.kohub.dto.NoticeBoard;
+import kr.kohub.dto.Promotion;
+import kr.kohub.dto.PromotionFileInfo;
 import kr.kohub.dto.Qna;
 import kr.kohub.dto.QnaComment;
 import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
 import kr.kohub.dto.param.NoticeBoardParam;
-import kr.kohub.dto.param.QnaParam;=======
-import kr.kohub.dto.Promotion;
-import kr.kohub.dto.PromotionFileInfo;
-import kr.kohub.dto.Submenu;
-import kr.kohub.dto.User;
-import kr.kohub.dto.param.NoticeBoardParam;
 import kr.kohub.dto.param.PromotionParam;
 import kr.kohub.dto.param.PromotionStateParam;
+import kr.kohub.dto.param.QnaParam;
 import kr.kohub.dto.param.UserParam;
 import kr.kohub.dto.response.AdminMenuResponse;
 import kr.kohub.dto.response.FaqResponse;
 import kr.kohub.dto.response.MenuResponse;
 import kr.kohub.dto.response.NoticeBoardResponse;
+import kr.kohub.dto.response.PromotionResponse;
 import kr.kohub.dto.response.QnaResponse;
 import kr.kohub.dto.response.UserResponse;
 import kr.kohub.exception.AdminMenuNotFoundException;
 import kr.kohub.exception.BadRequestException;
 import kr.kohub.exception.FaqNotFoundException;
-import kr.kohub.exception.MenuNotFoundException;
-import kr.kohub.exception.NoticeBoardNotFoundException;
-import kr.kohub.exception.QnaNotFoundException;
-import kr.kohub.dto.response.PromotionResponse;
-import kr.kohub.dto.response.UserResponse;
-import kr.kohub.exception.AdminMenuNotFoundException;
-import kr.kohub.exception.BadRequestException;
 import kr.kohub.exception.FileInfoNotFoundException;
 import kr.kohub.exception.MenuNotFoundException;
 import kr.kohub.exception.NoticeBoardNotFoundException;
 import kr.kohub.exception.PromotionNotFoundException;
+import kr.kohub.exception.QnaNotFoundException;
 import kr.kohub.exception.UserNotFoundException;
 import kr.kohub.service.FaqService;
 import kr.kohub.service.MenuService;
 import kr.kohub.service.NoticeService;
+import kr.kohub.service.PromotionService;
 import kr.kohub.service.QnaCommentService;
 import kr.kohub.service.QnaService;
-import kr.kohub.service.PromotionService;
 import kr.kohub.service.UserService;
 import kr.kohub.type.ImageFileExtensionType;
 import kr.kohub.type.OrderOptionType;
@@ -444,7 +436,7 @@ public class kohubApiController {
   public Map<String, Object> postNotice(
       @RequestBody(required = true) @Valid NoticeBoardParam noticeBoardParam) {
     noticeService.addNotice(noticeBoardParam);
-<<<<<<< HEAD
+
 
     return Collections.emptyMap();
   }
@@ -460,8 +452,7 @@ public class kohubApiController {
     if (noticeBoard == null) {
       throw new BadRequestException();
     }
-=======
->>>>>>> feature/promotion
+
 
     noticeService.removeNotice(noticeId);
 
