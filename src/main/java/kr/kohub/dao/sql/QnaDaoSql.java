@@ -16,6 +16,7 @@ public class QnaDaoSql {
 
   public static final String SELECT_BY_ID =
       "SELECT qa_board.id, title, category, content, user_id, qa_board.create_date, qa_board.modify_date, user.name AS user_name FROM qa_board LEFT JOIN user ON qa_board.user_id = user.id WHERE qa_board.id = :qnaId";
+
   public static final String DELETE_BY_ID = "DELETE FROM qa_board WHERE qa_board.id = :qnaId";
 
   public static final String UPDATE =

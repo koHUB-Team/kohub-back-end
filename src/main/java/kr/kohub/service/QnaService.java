@@ -2,6 +2,7 @@ package kr.kohub.service;
 
 import java.util.List;
 import kr.kohub.dto.Qna;
+import kr.kohub.dto.QnaComment;
 import kr.kohub.dto.param.QnaParam;
 
 public interface QnaService {
@@ -20,4 +21,6 @@ public interface QnaService {
   public int removeQna(int qnaId);
 
   public int changeQna(int qnaId, String title, String content, String category);
+
+  public QnaComment getComment(int qnaId);
 }

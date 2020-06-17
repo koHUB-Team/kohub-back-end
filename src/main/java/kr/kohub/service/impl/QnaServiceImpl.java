@@ -4,8 +4,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import kr.kohub.dao.QnaCommentDao;
 import kr.kohub.dao.QnaDao;
 import kr.kohub.dto.Qna;
+import kr.kohub.dto.QnaComment;
 import kr.kohub.dto.param.QnaParam;
 import kr.kohub.service.QnaService;
 import kr.kohub.util.DateUtil;
@@ -14,6 +16,8 @@ import kr.kohub.util.DateUtil;
 public class QnaServiceImpl implements QnaService {
   @Autowired
   private QnaDao qnaDao;
+  @Autowired
+  private QnaCommentDao qnaCommentDao;
 
   @Transactional(readOnly = true)
   @Override
@@ -62,5 +66,11 @@ public class QnaServiceImpl implements QnaService {
   public int changeQna(int qnaId, String title, String content, String category) {
     String modifyDate = DateUtil.getNowDate();
     return qnaDao.update(qnaId, title, content, category, modifyDate);
+  }
+
+  @Transactional(readOnly = true)
+  @Override
+  public QnaComment getComment(int qnaId) {
+    return qnaCommentDao.selectedById(qnaId);
   }
 }

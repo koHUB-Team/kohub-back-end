@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import kr.kohub.dto.AdminMenu;
 import kr.kohub.dto.Faq;
+import kr.kohub.dto.FreeBoard;
+import kr.kohub.dto.FreeBoardComment;
 import kr.kohub.dto.Menu;
 import kr.kohub.dto.NoticeBoard;
 import kr.kohub.dto.Promotion;
@@ -27,6 +29,8 @@ import kr.kohub.dto.Qna;
 import kr.kohub.dto.QnaComment;
 import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
+import kr.kohub.dto.param.FreeBoardCommentParam;
+import kr.kohub.dto.param.FreeBoardParam;
 import kr.kohub.dto.param.NoticeBoardParam;
 import kr.kohub.dto.param.PromotionParam;
 import kr.kohub.dto.param.PromotionStateParam;
@@ -34,6 +38,7 @@ import kr.kohub.dto.param.QnaParam;
 import kr.kohub.dto.param.UserParam;
 import kr.kohub.dto.response.AdminMenuResponse;
 import kr.kohub.dto.response.FaqResponse;
+import kr.kohub.dto.response.FreeBoardResponse;
 import kr.kohub.dto.response.MenuResponse;
 import kr.kohub.dto.response.NoticeBoardResponse;
 import kr.kohub.dto.response.PromotionResponse;
@@ -43,16 +48,17 @@ import kr.kohub.exception.AdminMenuNotFoundException;
 import kr.kohub.exception.BadRequestException;
 import kr.kohub.exception.FaqNotFoundException;
 import kr.kohub.exception.FileInfoNotFoundException;
+import kr.kohub.exception.FreeBoardNotFoundException;
 import kr.kohub.exception.MenuNotFoundException;
 import kr.kohub.exception.NoticeBoardNotFoundException;
 import kr.kohub.exception.PromotionNotFoundException;
 import kr.kohub.exception.QnaNotFoundException;
 import kr.kohub.exception.UserNotFoundException;
 import kr.kohub.service.FaqService;
+import kr.kohub.service.FreeBoardService;
 import kr.kohub.service.MenuService;
 import kr.kohub.service.NoticeService;
 import kr.kohub.service.PromotionService;
-import kr.kohub.service.QnaCommentService;
 import kr.kohub.service.QnaService;
 import kr.kohub.service.UserService;
 import kr.kohub.type.ImageFileExtensionType;
@@ -88,7 +94,7 @@ public class kohubApiController {
   QnaService qnaService;
 
   @Autowired
-  QnaCommentService qnaCommentService;
+  FreeBoardService freeBoardService;
 
   @Autowired
   PromotionService promotionService;
@@ -506,7 +512,7 @@ public class kohubApiController {
   }
 
   @CrossOrigin
-  @GetMapping(path = "/qna/search")
+  @GetMapping(path = "/qnas/search")
   public Map<String, Object> searchQna(
       @RequestParam(name = "title", required = true, defaultValue = "") String title,
       @RequestParam(name = "userName", required = true, defaultValue = "") String userName) {
@@ -529,7 +535,7 @@ public class kohubApiController {
   @GetMapping(path = "/qna")
   public Map<String, Object> getQna(@RequestParam(name = "qnaId", required = true) int qnaId) {
     Qna qna = qnaService.getQna(qnaId);
-    QnaComment qnaComment = qnaCommentService.geteQnaComment(qnaId);
+    QnaComment qnaComment = qnaService.getComment(qnaId);
 
     QnaResponse qnaResponse = null;
 
@@ -583,5 +589,132 @@ public class kohubApiController {
     return Collections.emptyMap();
   }
 
+  @CrossOrigin
+  @GetMapping(path = "/frees")
+  public Map<String, Object> getFrees(
+      @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
+
+    List<FreeBoard> freeBoards = freeBoardService.getFreeBoards(start);
+    if (freeBoards == null) {
+      throw new FreeBoardNotFoundException();
+    }
+    int totalCount = freeBoardService.getTotalFreeBoardCount();
+    FreeBoardResponse freeBoardResponse =
+        FreeBoardResponse.builder().freeBoards(freeBoards).totalCount(totalCount).build();
+    return CollectionsUtil.convertObjectToMap(freeBoardResponse);
+  }
+
+  @CrossOrigin
+  @GetMapping(path = "/frees/search")
+  public Map<String, Object> searchFrees(
+      @RequestParam(name = "title", required = true, defaultValue = "") String title,
+      @RequestParam(name = "userName", required = true, defaultValue = "") String userName) {
+
+    List<FreeBoard> frees = null;
+    int totalCount = 0;
+    if (title.equals("")) {
+      frees = freeBoardService.getFreeBoardsByName(userName);
+      totalCount = frees.size();
+    } else if (userName.equals("")) {
+      frees = freeBoardService.getFreeBoardsByTitle(title);
+      totalCount = frees.size();
+    }
+
+    FreeBoardResponse freeBoardResponse =
+        FreeBoardResponse.builder().freeBoards(frees).totalCount(totalCount).build();
+    return CollectionsUtil.convertObjectToMap(freeBoardResponse);
+  }
+
+  @CrossOrigin
+  @GetMapping(path = "/free")
+  public Map<String, Object> getFree(@RequestParam(name = "freeId", required = true) int freeId) {
+    FreeBoard freeBoard = freeBoardService.getFreeBoard(freeId);
+    List<FreeBoardComment> comments = freeBoardService.getComments(freeId);
+    int totalCommentCount = 0;
+    FreeBoardResponse freeBoardResponse = null;
+
+    if (freeBoard == null) {
+      throw new FreeBoardNotFoundException();
+    }
+
+    if (comments == null) {
+      freeBoardResponse = FreeBoardResponse.builder().freeBoard(freeBoard).build();
+    } else {
+      totalCommentCount = freeBoardService.getTotalCommentCount(freeId);
+      freeBoardResponse = FreeBoardResponse.builder().freeBoard(freeBoard).comments(comments)
+          .totalCommentCount(totalCommentCount).build();
+    }
+
+    return CollectionsUtil.convertObjectToMap(freeBoardResponse);
+  }
+
+  @CrossOrigin
+  @PostMapping(path = "/free")
+  public Map<String, Object> postFree(
+      @RequestBody(required = true) @Valid FreeBoardParam freeBoardParam) {
+    freeBoardService.addFreeBoard(freeBoardParam);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @DeleteMapping(path = "/free/{freeId}")
+  public Map<String, Object> deleteFree(
+      @PathVariable(name = "freeId", required = true) int freeId) {
+    FreeBoard freeBoard = freeBoardService.getFreeBoard(freeId);
+    if (freeBoard == null) {
+      throw new BadRequestException();
+    }
+    freeBoardService.removeFree(freeId);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @PutMapping(path = "/free/{freeId}")
+  public Map<String, Object> putFree(@PathVariable(name = "freeId") int freeId,
+      @RequestBody(required = true) @Valid FreeBoardParam freeBoardParam) {
+    FreeBoard freeBoard = freeBoardService.getFreeBoard(freeId);
+    if (freeBoard == null) {
+      throw new BadRequestException();
+    }
+
+    String title = freeBoardParam.getTitle();
+    String content = freeBoardParam.getContent();
+
+    freeBoardService.changeFree(freeId, title, content);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @PostMapping(path = "/free/comment")
+  public Map<String, Object> postFreeComment(
+      @RequestBody(required = true) @Valid FreeBoardCommentParam freeBoardCommentParam) {
+    freeBoardService.addComment(freeBoardCommentParam);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @DeleteMapping(path = "/free/comment/{commentId}")
+  public Map<String, Object> deleteFreeComment(
+      @PathVariable(name = "commentId", required = true) int commentId) {
+    freeBoardService.removeComment(commentId);
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @PutMapping(path = "/free/comment/{commentId}")
+  public Map<String, Object> putFreeComment(@PathVariable(name = "commentId") int commentId,
+      @RequestBody(required = true) @Valid FreeBoardCommentParam freeBoardCommentParam) {
+
+    String comment = freeBoardCommentParam.getComment();
+
+    freeBoardService.changeComment(commentId, comment);
+
+    return Collections.emptyMap();
+  }
 }
 
