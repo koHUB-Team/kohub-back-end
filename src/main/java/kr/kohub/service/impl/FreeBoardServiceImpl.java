@@ -72,8 +72,8 @@ public class FreeBoardServiceImpl implements FreeBoardService {
 
   @Transactional(readOnly = true)
   @Override
-  public List<FreeBoardComment> getComments(int freeId) {
-    return freeBoardCommentDao.selectByFreeId(freeId);
+  public List<FreeBoardComment> getComments(int freeId, int start) {
+    return freeBoardCommentDao.selectByFreeId(freeId, start);
   }
 
   @Transactional(readOnly = true)
