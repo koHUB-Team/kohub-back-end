@@ -23,7 +23,7 @@ public interface FreeBoardService {
 
   public int changeFree(int freeId, String title, String content);
 
-  public List<FreeBoardComment> getComments(int freeId);
+  public List<FreeBoardComment> getComments(int freeId, int start);
 
   public int getTotalCommentCount(int freeId);
 

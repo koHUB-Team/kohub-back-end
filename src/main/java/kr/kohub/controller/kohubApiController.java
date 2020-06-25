@@ -666,9 +666,10 @@ public class kohubApiController {
 
   @CrossOrigin
   @GetMapping(path = "/free")
-  public Map<String, Object> getFree(@RequestParam(name = "freeId", required = true) int freeId) {
+  public Map<String, Object> getFree(@RequestParam(name = "freeId", required = true) int freeId,
+      @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
     FreeBoard freeBoard = freeBoardService.getFreeBoard(freeId);
-    List<FreeBoardComment> comments = freeBoardService.getComments(freeId);
+    List<FreeBoardComment> comments = freeBoardService.getComments(freeId, start);
     int totalCommentCount = 0;
     FreeBoardResponse freeBoardResponse = null;
 

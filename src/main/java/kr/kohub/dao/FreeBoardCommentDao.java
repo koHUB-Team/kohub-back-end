@@ -29,12 +29,14 @@ public class FreeBoardCommentDao {
         .usingGeneratedKeyColumns("id").usingColumns("free_board_id", "user_id", "comment");
   }
 
-  public List<FreeBoardComment> selectByFreeId(int freeId) {
+  public List<FreeBoardComment> selectByFreeId(int freeId, int start) {
     List<FreeBoardComment> comments;
 
     try {
       Map<String, Object> params = new HashMap<>();
       params.put("freeId", freeId);
+      params.put("start", start);
+      params.put("limit", FreeBoardCommentDaoSql.LIMIT);
 
       comments = jdbc.query(FreeBoardCommentDaoSql.SELECT_BY_FREE_ID, params, rowMapper);
     } catch (EmptyResultDataAccessException e) {
