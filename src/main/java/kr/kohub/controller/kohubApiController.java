@@ -100,6 +100,7 @@ public class kohubApiController {
   PromotionService promotionService;
 
 
+  /**** menu API ****/
   @CrossOrigin
   @GetMapping(path = "/menus")
   public Map<String, Object> getMenus() {
@@ -136,6 +137,7 @@ public class kohubApiController {
     return CollectionsUtil.convertObjectToMap(adminMenuResponse);
   }
 
+  /**** user API ****/
   @CrossOrigin
   @GetMapping(path = "/admin/users")
   public Map<String, Object> getUsers(
@@ -249,6 +251,8 @@ public class kohubApiController {
     return CollectionsUtil.convertObjectToMap(userResponse);
   }
 
+
+  /**** promotion API ****/
   @CrossOrigin
   @GetMapping(path = "/admin/promotions")
   public Map<String, Object> getPromotions(
@@ -409,6 +413,8 @@ public class kohubApiController {
     return Collections.emptyMap();
   }
 
+
+  /**** notice API ****/
   @CrossOrigin
   @GetMapping(path = "/notices")
   public Map<String, Object> getNotices(
@@ -480,6 +486,8 @@ public class kohubApiController {
     return Collections.emptyMap();
   }
 
+
+  /**** faq API ****/
   @CrossOrigin
   @GetMapping(path = "/faqs")
   public Map<String, Object> getFaqs(
@@ -534,6 +542,8 @@ public class kohubApiController {
     return Collections.emptyMap();
   }
 
+
+  /**** qna API ****/
   @CrossOrigin
   @GetMapping(path = "/qnas")
   public Map<String, Object> getQnas(
@@ -548,8 +558,6 @@ public class kohubApiController {
     return CollectionsUtil.convertObjectToMap(qnaResponse);
   }
 
-
-  /// ???search qna는 이상.
   @CrossOrigin
   @GetMapping(path = "/qnas/search")
   public Map<String, Object> searchQna(
@@ -628,6 +636,8 @@ public class kohubApiController {
     return Collections.emptyMap();
   }
 
+
+  /**** free API ****/
   @CrossOrigin
   @GetMapping(path = "/frees")
   public Map<String, Object> getFrees(
