@@ -29,6 +29,7 @@ import kr.kohub.dto.Qna;
 import kr.kohub.dto.QnaComment;
 import kr.kohub.dto.Submenu;
 import kr.kohub.dto.User;
+import kr.kohub.dto.param.FaqParam;
 import kr.kohub.dto.param.FreeBoardCommentParam;
 import kr.kohub.dto.param.FreeBoardParam;
 import kr.kohub.dto.param.NoticeBoardParam;
@@ -74,7 +75,6 @@ import kr.kohub.type.UserStateType;
 import kr.kohub.util.CollectionsUtil;
 import kr.kohub.util.FileUtil;
 
-// 이름변경 대문자로
 @RestController
 @RequestMapping(path = "/api")
 public class kohubApiController {
@@ -442,8 +442,6 @@ public class kohubApiController {
   public Map<String, Object> postNotice(
       @RequestBody(required = true) @Valid NoticeBoardParam noticeBoardParam) {
     noticeService.addNotice(noticeBoardParam);
-
-
     return Collections.emptyMap();
   }
 
@@ -498,6 +496,45 @@ public class kohubApiController {
   }
 
   @CrossOrigin
+  @GetMapping(path = "/admin/faqs/{faqId}")
+  public Map<String, Object> getFaq(@PathVariable(required = true, name = "faqId") int faqId) {
+    Faq faq = faqService.getFaqById(faqId);
+
+    if (faq == null) {
+      throw new FaqNotFoundException();
+    }
+
+    return CollectionsUtil.convertObjectToMap(faq);
+  }
+
+  @CrossOrigin
+  @PostMapping(path = "/faq")
+  public Map<String, Object> postFaq(@RequestBody(required = true) @Valid FaqParam faqParam) {
+    faqService.addFaq(faqParam);
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @PutMapping(path = "/admin/faqs/{faqId}")
+  public Map<String, Object> putFaq(@PathVariable(required = true, name = "faqId") int faqId,
+      @RequestBody(required = true) @Valid FaqParam faqParam) {
+    faqService.changeFaqById(faqId, faqParam);
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
+  @DeleteMapping(path = "/admin/faqs/{faqId}")
+  public Map<String, Object> deleteFaq(@PathVariable(required = true, name = "faqId") int faqId) {
+    int deleteCount = faqService.removeByFaqId(faqId);
+
+    if (deleteCount == 0) {
+      throw new FaqNotFoundException();
+    }
+
+    return Collections.emptyMap();
+  }
+
+  @CrossOrigin
   @GetMapping(path = "/qnas")
   public Map<String, Object> getQnas(
       @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
@@ -511,6 +548,8 @@ public class kohubApiController {
     return CollectionsUtil.convertObjectToMap(qnaResponse);
   }
 
+
+  /// ???search qna는 이상.
   @CrossOrigin
   @GetMapping(path = "/qnas/search")
   public Map<String, Object> searchQna(

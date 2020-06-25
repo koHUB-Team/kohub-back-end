@@ -114,7 +114,7 @@ public class PromotionServiceImpl implements PromotionService {
 
     MultipartFile promotionImage = promotionParam.getPromotionImage();
     if (promotionImage != null) {
-      int deleteCount = removePromotionById(promotionId);
+      int deleteCount = removePromotionById(promotionId);// 이미지를 삭제해야함..
       if (deleteCount == 0) {
         throw new RuntimeException("Promotion image did not delete exception");
       }
