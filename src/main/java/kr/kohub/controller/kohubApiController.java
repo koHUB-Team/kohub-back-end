@@ -547,26 +547,17 @@ public class kohubApiController {
   @CrossOrigin
   @GetMapping(path = "/qnas")
   public Map<String, Object> getQnas(
-      @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
-
-    List<Qna> qnas = qnaService.getQnas(start);
-    if (qnas == null) {
-      throw new QnaNotFoundException();
-    }
-    int totalQnaCount = qnaService.getTotalQnaCount();
-    QnaResponse qnaResponse = QnaResponse.builder().qnas(qnas).totalQnaCount(totalQnaCount).build();
-    return CollectionsUtil.convertObjectToMap(qnaResponse);
-  }
-
-  @CrossOrigin
-  @GetMapping(path = "/qnas/search")
-  public Map<String, Object> searchQna(
+      @RequestParam(name = "start", required = true, defaultValue = "0") int start,
       @RequestParam(name = "title", required = true, defaultValue = "") String title,
       @RequestParam(name = "userName", required = true, defaultValue = "") String userName) {
 
     List<Qna> qnas = null;
     int totalQnaCount = 0;
-    if (title.equals("")) {
+
+    if (title.equals("") && userName.equals("")) {
+      qnas = qnaService.getQnas(start);
+      totalQnaCount = qnaService.getTotalQnaCount();
+    } else if (title.equals("")) {
       qnas = qnaService.getQnasByName(userName);
       totalQnaCount = qnas.size();
     } else if (userName.equals("")) {
@@ -641,13 +632,23 @@ public class kohubApiController {
   @CrossOrigin
   @GetMapping(path = "/frees")
   public Map<String, Object> getFrees(
-      @RequestParam(name = "start", required = true, defaultValue = "0") int start) {
+      @RequestParam(name = "start", required = true, defaultValue = "0") int start,
+      @RequestParam(name = "title", required = true, defaultValue = "") String title,
+      @RequestParam(name = "userName", required = true, defaultValue = "") String userName) {
 
-    List<FreeBoard> freeBoards = freeBoardService.getFreeBoards(start);
-    if (freeBoards == null) {
-      throw new FreeBoardNotFoundException();
+    List<FreeBoard> freeBoards = null;
+    int totalCount = 0;
+    if (title.equals("") && userName.equals("")) {
+      freeBoards = freeBoardService.getFreeBoards(start);
+    } else if (title.equals("")) {
+      freeBoards = freeBoardService.getFreeBoardsByName(userName);
+      totalCount = freeBoards.size();
+    } else if (userName.equals("")) {
+      freeBoards = freeBoardService.getFreeBoardsByTitle(title);
+      totalCount = freeBoards.size();
     }
-    int totalCount = freeBoardService.getTotalFreeBoardCount();
+
+
     FreeBoardResponse freeBoardResponse =
         FreeBoardResponse.builder().freeBoards(freeBoards).totalCount(totalCount).build();
     return CollectionsUtil.convertObjectToMap(freeBoardResponse);
